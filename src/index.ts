@@ -1,49 +1,53 @@
-// 1. Classe de Banco de Dados Concreta
-class BancoDeDadosMySQL {
-    salvar(dados: any): void {
-        console.log("Salvando dados no MySQL...");
-    }
-}
 
-// 2. Interface de tarefas do pedido
-interface ITarefasPedido {
-    processarPagamento(): void;
-    gerarNotaFiscal(): void;
-    imprimirEtiquetaFisica(): void;
-}
-
-// 1. Classe especialista em persistência (Responsabilidade: Banco de Dados)
 class PedidoRepository {
     salvar(pedido: Pedido): void {
         console.log("Salvando dados no MySQL...");
-        // Lógica de infraestrutura fica aqui
     }
 }
 
-// 2. Classe especialista em comunicação (Responsabilidade: Notificação)
 class EmailService {
     enviarConfirmacao(cliente: string): void {
-        console.log(`Enviando e-mail de confirmação para ${cliente}...`);
+        console.log(`Enviando e-mail de confirmação para o cliente...`);
     }
 }
 
-// 3. Classe de Pedido focada apenas em Regras de Negócio
+
+interface IDesconto {
+    calcular(valor: number): number;
+}
+
+class DescontoVIP implements IDesconto {
+    calcular(valor: number): number {
+        return valor * 0.20;
+    }
+}
+
+class DescontoEstudante implements IDesconto {
+    calcular(valor: number): number {
+        return valor * 0.10;
+    }
+}
+
+class SemDesconto implements IDesconto {
+    calcular(valor: number): number {
+        return 0;
+    }
+}
+
+
 class Pedido {
     public valorTotal: number;
-    public tipoCliente: string;
+   
+    private estrategiaDesconto: IDesconto;
 
-    constructor(valorTotal: number, tipoCliente: string) {
+    constructor(valorTotal: number, estrategiaDesconto: IDesconto) {
         this.valorTotal = valorTotal;
-        this.tipoCliente = tipoCliente;
+        this.estrategiaDesconto = estrategiaDesconto;
     }
 
+    // OCP: O método calcularDesconto ficou genérico. Não precisa de IF/ELSE.
     calcularDesconto(): number {
-        if (this.tipoCliente === "VIP") {
-            return this.valorTotal * 0.20;
-        } else if (this.tipoCliente === "ESTUDANTE") {
-            return this.valorTotal * 0.10;
-        }
-        return 0;
+        return this.estrategiaDesconto.calcular(this.valorTotal);
     }
 
     calcularFrete(): number {
@@ -51,9 +55,14 @@ class Pedido {
     }
 }
 
-// 4. Implementação para produtos digitais
+
+interface ITarefasPedido {
+    processarPagamento(): void;
+    gerarNotaFiscal(): void;
+    imprimirEtiquetaFisica(): void;
+}
+
 class PedidoProdutoDigital extends Pedido implements ITarefasPedido {
-   
     calcularFrete(): number {
         throw new Error("Erro: Produtos digitais não possuem frete.");
     }
