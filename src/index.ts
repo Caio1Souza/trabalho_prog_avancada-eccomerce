@@ -12,7 +12,22 @@ interface ITarefasPedido {
     imprimirEtiquetaFisica(): void;
 }
 
-// 3. Classe principal de Pedido
+// 1. Classe especialista em persistência (Responsabilidade: Banco de Dados)
+class PedidoRepository {
+    salvar(pedido: Pedido): void {
+        console.log("Salvando dados no MySQL...");
+        // Lógica de infraestrutura fica aqui
+    }
+}
+
+// 2. Classe especialista em comunicação (Responsabilidade: Notificação)
+class EmailService {
+    enviarConfirmacao(cliente: string): void {
+        console.log(`Enviando e-mail de confirmação para ${cliente}...`);
+    }
+}
+
+// 3. Classe de Pedido focada apenas em Regras de Negócio
 class Pedido {
     public valorTotal: number;
     public tipoCliente: string;
@@ -33,15 +48,6 @@ class Pedido {
 
     calcularFrete(): number {
         return 15.0;
-    }
-
-    salvarPedido(): void {
-        const db = new BancoDeDadosMySQL();
-        db.salvar(this);
-    }
-
-    enviarEmailConfirmacao(): void {
-        console.log("Enviando e-mail de confirmação para o cliente...");
     }
 }
 
