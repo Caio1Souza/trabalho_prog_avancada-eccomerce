@@ -45,7 +45,7 @@ class Pedido {
         this.estrategiaDesconto = estrategiaDesconto;
     }
 
-    // OCP: O método calcularDesconto ficou genérico. Não precisa de IF/ELSE.
+    
     calcularDesconto(): number {
         return this.estrategiaDesconto.calcular(this.valorTotal);
     }
@@ -62,20 +62,25 @@ interface ITarefasPedido {
     imprimirEtiquetaFisica(): void;
 }
 
-class PedidoProdutoDigital extends Pedido implements ITarefasPedido {
+
+abstract class PedidoBase {
+    constructor(
+        public valorTotal: number, 
+        protected estrategiaDesconto: IDesconto
+    ) {}
+
+    calcularDesconto(): number {
+        return this.estrategiaDesconto.calcular(this.valorTotal);
+    }
+}
+
+
+class PedidoFisico extends PedidoBase {
     calcularFrete(): number {
-        throw new Error("Erro: Produtos digitais não possuem frete.");
+        return 15.0; 
     }
+}
 
-    processarPagamento(): void {
-        console.log("Pagamento processado online.");
-    }
-
-    gerarNotaFiscal(): void {
-        console.log("Nota fiscal digital gerada.");
-    }
-
-    imprimirEtiquetaFisica(): void {
-        throw new Error("Erro: Não é possível imprimir etiqueta para produto digital.");
-    }
+class PedidoDigital extends PedidoBase {
+    
 }
